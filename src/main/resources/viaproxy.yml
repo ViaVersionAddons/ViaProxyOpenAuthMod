@@ -1,0 +1,5 @@
+name: "OpenAuthModPlugin"
+version: "${version}"
+author: "RK_01"
+main: "net.raphimc.openauthmodplugin.OpenAuthModPlugin"
+min-version: "3.3.6"
