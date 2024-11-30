@@ -17,14 +17,62 @@
  */
 package net.raphimc.openauthmodplugin;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import net.lenni0451.lambdaevents.EventHandler;
+import net.lenni0451.reflect.Enums;
+import net.lenni0451.reflect.stream.RStream;
+import net.raphimc.netminecraft.packet.PacketTypes;
 import net.raphimc.viaproxy.ViaProxy;
 import net.raphimc.viaproxy.plugins.ViaProxyPlugin;
+import net.raphimc.viaproxy.plugins.events.ConnectEvent;
+import net.raphimc.viaproxy.plugins.events.JoinServerRequestEvent;
+import net.raphimc.viaproxy.plugins.events.ViaProxyLoadedEvent;
+import net.raphimc.viaproxy.protocoltranslator.viaproxy.ViaProxyConfig;
+import net.raphimc.viaproxy.proxy.external_interface.OpenAuthModConstants;
+import net.raphimc.viaproxy.ui.I18n;
+
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class OpenAuthModPlugin extends ViaProxyPlugin {
+
+    private static ViaProxyConfig.AuthMethod OPENAUTHMOD;
 
     @Override
     public void onEnable() {
         ViaProxy.EVENT_MANAGER.register(this);
+
+        OPENAUTHMOD = Enums.newInstance(ViaProxyConfig.AuthMethod.class, "OPENAUTHMOD", ViaProxyConfig.AuthMethod.values().length, new Class[]{String.class}, new Object[]{"openauthmod.auth_method.name"});
+        Enums.addEnumInstance(ViaProxyConfig.AuthMethod.class, OPENAUTHMOD);
+    }
+
+    @EventHandler
+    private void onViaProxyLoaded(ViaProxyLoadedEvent event) {
+        final Map<String, Properties> locales = RStream.of(I18n.class).fields().by("LOCALES").get();
+        locales.get("en_US").setProperty(OPENAUTHMOD.getGuiTranslationKey(), "Use OpenAuthMod");
+    }
+
+    @EventHandler
+    private void onConnect(ConnectEvent event) {
+        event.getProxyConnection().getPacketHandlers().add(0, new OpenAuthModPacketHandler(event.getProxyConnection()));
+    }
+
+    @EventHandler
+    private void onJoinServerRequest(JoinServerRequestEvent event) throws ExecutionException, InterruptedException {
+        if (ViaProxy.getConfig().getAuthMethod() == OPENAUTHMOD) {
+            try {
+                final ByteBuf response = event.getProxyConnection().getPacketHandler(OpenAuthModPacketHandler.class).sendCustomPayload(OpenAuthModConstants.JOIN_CHANNEL, PacketTypes.writeString(Unpooled.buffer(), event.getServerIdHash())).get(6, TimeUnit.SECONDS);
+                if (response == null) throw new TimeoutException();
+                if (response.isReadable() && !response.readBoolean()) throw new TimeoutException();
+                event.setCancelled(true);
+            } catch (TimeoutException e) {
+                event.getProxyConnection().kickClient("§cAuthentication cancelled! You need to install the OpenAuthMod client mod in order to join this server.");
+            }
+        }
     }
 
 }
