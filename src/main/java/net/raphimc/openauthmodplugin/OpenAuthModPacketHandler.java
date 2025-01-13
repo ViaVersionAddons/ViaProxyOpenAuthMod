@@ -31,7 +31,6 @@ import net.raphimc.netminecraft.packet.impl.login.C2SLoginKeyPacket;
 import net.raphimc.netminecraft.packet.impl.login.S2CLoginCustomQueryPacket;
 import net.raphimc.netminecraft.packet.impl.login.S2CLoginDisconnectPacket;
 import net.raphimc.netminecraft.packet.impl.play.S2CPlayCustomPayloadPacket;
-import net.raphimc.viaproxy.proxy.external_interface.OpenAuthModConstants;
 import net.raphimc.viaproxy.proxy.packethandler.PacketHandler;
 import net.raphimc.viaproxy.proxy.session.ProxyConnection;
 

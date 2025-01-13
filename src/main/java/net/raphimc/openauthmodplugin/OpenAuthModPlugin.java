@@ -29,7 +29,6 @@ import net.raphimc.viaproxy.plugins.events.ConnectEvent;
 import net.raphimc.viaproxy.plugins.events.JoinServerRequestEvent;
 import net.raphimc.viaproxy.plugins.events.ViaProxyLoadedEvent;
 import net.raphimc.viaproxy.protocoltranslator.viaproxy.ViaProxyConfig;
-import net.raphimc.viaproxy.proxy.external_interface.OpenAuthModConstants;
 import net.raphimc.viaproxy.ui.I18n;
 
 import java.util.Map;
