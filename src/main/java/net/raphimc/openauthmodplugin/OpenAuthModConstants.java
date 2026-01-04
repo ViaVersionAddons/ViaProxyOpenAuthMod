@@ -1,6 +1,6 @@
 /*
  * This file is part of ViaProxyOpenAuthMod - https://github.com/ViaVersionAddons/ViaProxyOpenAuthMod
- * Copyright (C) 2024-2025 RK_01/RaphiMC and contributors
+ * Copyright (C) 2024-2026 RK_01/RaphiMC and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
