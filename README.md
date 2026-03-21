@@ -13,4 +13,4 @@ This plugin allows clients to authenticate with online mode servers using the Op
 If you encounter any issues, please report them on the
 [issue tracker](https://github.com/ViaVersionAddons/ViaProxyOpenAuthMod/issues).  
 If you just want to talk or need help using ViaProxyOpenAuthMod feel free to join my
-[Discord](https://discord.gg/dCzT9XHEWu).
+[Discord](https://raphimc.net/discord).
