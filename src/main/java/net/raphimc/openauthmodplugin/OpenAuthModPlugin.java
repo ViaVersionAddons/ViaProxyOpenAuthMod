@@ -50,25 +50,29 @@ public class OpenAuthModPlugin extends ViaProxyPlugin {
     }
 
     @EventHandler
-    private void onViaProxyLoaded(ViaProxyLoadedEvent event) {
+    private void onViaProxyLoaded(final ViaProxyLoadedEvent event) {
         final Map<String, Properties> locales = RStream.of(I18n.class).fields().by("LOCALES").get();
         locales.get("en_US").setProperty(OPENAUTHMOD.getGuiTranslationKey(), "Use OpenAuthMod");
     }
 
     @EventHandler
-    private void onConnect(ConnectEvent event) {
+    private void onConnect(final ConnectEvent event) {
         event.getProxyConnection().getPacketHandlers().add(0, new OpenAuthModPacketHandler(event.getProxyConnection()));
     }
 
     @EventHandler
-    private void onJoinServerRequest(JoinServerRequestEvent event) throws ExecutionException, InterruptedException {
+    private void onJoinServerRequest(final JoinServerRequestEvent event) throws ExecutionException, InterruptedException {
         if (ViaProxy.getConfig().getAuthMethod() == OPENAUTHMOD) {
             try {
                 final ByteBuf response = event.getProxyConnection().getPacketHandler(OpenAuthModPacketHandler.class).sendCustomPayload(OpenAuthModConstants.JOIN_CHANNEL, PacketTypes.writeString(Unpooled.buffer(), event.getServerIdHash())).get(6, TimeUnit.SECONDS);
-                if (response == null) throw new TimeoutException();
-                if (response.isReadable() && !response.readBoolean()) throw new TimeoutException();
+                if (response == null) {
+                    throw new TimeoutException();
+                }
+                if (response.isReadable() && !response.readBoolean()) {
+                    throw new TimeoutException();
+                }
                 event.setCancelled(true);
-            } catch (TimeoutException e) {
+            } catch (final TimeoutException e) {
                 event.getProxyConnection().kickClient("§cAuthentication cancelled! You need to install the OpenAuthMod client mod in order to join this server.");
             }
         }

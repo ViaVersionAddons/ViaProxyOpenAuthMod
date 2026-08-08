@@ -20,7 +20,7 @@ package net.raphimc.openauthmodplugin;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 
-public class OpenAuthModConstants {
+public final class OpenAuthModConstants {
 
     public static final String BASE_CHANNEL = "oam:";
     public static final byte[] LEGACY_MAGIC_BYTES = new byte[]{2, 20, 12, 3}; // 1.8 - 1.12.2
@@ -33,5 +33,8 @@ public class OpenAuthModConstants {
 
     // Response
     public static final String DATA_CHANNEL = BASE_CHANNEL + "data"; // 1.8 - latest
+
+    private OpenAuthModConstants() {
+    }
 
 }

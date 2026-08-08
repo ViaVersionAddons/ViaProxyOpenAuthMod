@@ -47,12 +47,12 @@ public class OpenAuthModPacketHandler extends PacketHandler {
     private final AtomicInteger id = new AtomicInteger(0);
     private final Map<Integer, CompletableFuture<ByteBuf>> customPayloadListener = new ConcurrentHashMap<>();
 
-    public OpenAuthModPacketHandler(ProxyConnection proxyConnection) {
+    public OpenAuthModPacketHandler(final ProxyConnection proxyConnection) {
         super(proxyConnection);
     }
 
     @Override
-    public boolean handleC2P(Packet packet, List<ChannelFutureListener> listeners) {
+    public boolean handleC2P(final Packet packet, final List<ChannelFutureListener> listeners) {
         if (packet instanceof C2SCustomPayloadPacket customPayloadPacket) {
             final ByteBuf data = Unpooled.wrappedBuffer(customPayloadPacket.data);
             if (customPayloadPacket.channel.equals(OpenAuthModConstants.DATA_CHANNEL) && this.handleCustomPayload(PacketTypes.readVarInt(data), data)) {
@@ -74,12 +74,14 @@ public class OpenAuthModPacketHandler extends PacketHandler {
     }
 
     public CompletableFuture<ByteBuf> sendCustomPayload(final String channel, final ByteBuf data) {
-        if (channel.length() > 20) throw new IllegalStateException("Channel name can't be longer than 20 characters");
+        if (channel.length() > 20) {
+            throw new IllegalStateException("Channel name can't be longer than 20 characters");
+        }
         final CompletableFuture<ByteBuf> future = new CompletableFuture<>();
         final int id = this.id.getAndIncrement();
 
         switch (this.proxyConnection.getC2pConnectionState()) {
-            case LOGIN:
+            case LOGIN -> {
                 if (this.proxyConnection.getClientVersion().newerThanOrEqualTo(ProtocolVersion.v1_13)) {
                     this.proxyConnection.getC2P().writeAndFlush(new S2CLoginCustomQueryPacket(id, channel, PacketTypes.readReadableBytes(data))).addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
                 } else {
@@ -89,15 +91,14 @@ public class OpenAuthModPacketHandler extends PacketHandler {
                     disconnectPacketData.writeBytes(data);
                     this.proxyConnection.getC2P().writeAndFlush(new S2CLoginDisconnectPacket(new StringComponent("§cYou need to install OpenAuthMod in order to join this server.§k\n" + Base64.getEncoder().encodeToString(ByteBufUtil.getBytes(disconnectPacketData)) + "\n" + OpenAuthModConstants.LEGACY_MAGIC_STRING))).addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
                 }
-                break;
-            case PLAY:
+            }
+            case PLAY -> {
                 final ByteBuf responseData = Unpooled.buffer();
                 PacketTypes.writeVarInt(responseData, id);
                 responseData.writeBytes(data);
                 this.proxyConnection.getC2P().writeAndFlush(new S2CPlayCustomPayloadPacket(channel, ByteBufUtil.getBytes(responseData))).addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
-                break;
-            default:
-                throw new IllegalStateException("Can't send a custom payload packet during " + this.proxyConnection.getC2pConnectionState());
+            }
+            default -> throw new IllegalStateException("Can't send a custom payload packet during " + this.proxyConnection.getC2pConnectionState());
         }
 
         this.customPayloadListener.put(id, future);
